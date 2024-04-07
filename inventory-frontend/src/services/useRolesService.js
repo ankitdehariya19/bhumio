@@ -1,17 +1,15 @@
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import BASE_URL from '../config'; 
+import BASE_URL from '../config';
 
-
-const useBrandsService = () => {
-  const [brands, setBrands] = useState([]);
+const useRolesService = () => {
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const generateHeaders = () => ({
     'Token': localStorage.getItem('token'),
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   });
 
   const handleRequest = async (requestFunc, ...args) => {
@@ -27,27 +25,27 @@ const useBrandsService = () => {
     }
   };
 
-  const fetchBrands = async () => {
+  const fetchRoles = async () => {
     await handleRequest(async () => {
       const headers = generateHeaders();
-      const response = await axios.get(`${BASE_URL}/brands`, { headers });
-      setBrands(response.data.data || []);
+      const response = await axios.get(`${BASE_URL}/roles`, { headers });
+      setRoles(response.data.data || []);
     });
   };
 
   useEffect(() => {
-    fetchBrands();
+    fetchRoles();
   }, []);
 
-  const createBrand = async (brandData) => {
+  const createRole = async (roleData) => {
     await handleRequest(async () => {
       const headers = generateHeaders();
       try {
-        const response = await axios.post(`${BASE_URL}/brands`, brandData, { headers });
-        setBrands(prevBrands => [...prevBrands, response.data]);
+        const response = await axios.post(`${BASE_URL}/roles`, roleData, { headers });
+        setRoles(prevRoles => [...prevRoles, response.data]);
       } catch (error) {
         if (error.response && error.response.status === 400) {
-          const errorMessage = error.response.data.error || 'Duplicate brand error';
+          const errorMessage = error.response.data.error || 'Duplicate role error';
           setError(errorMessage);
         } else {
           setError(error.message || 'An error occurred');
@@ -56,37 +54,35 @@ const useBrandsService = () => {
     });
   };
 
-  const updateBrand = async (brandId, updatedData) => {
+  const updateRole = async (roleId, updatedData) => {
     await handleRequest(async () => {
       const headers = generateHeaders();
-      await axios.put(`${BASE_URL}/brands/${brandId}`, updatedData, { headers });
-      setBrands(prevBrands =>
-        prevBrands.map(brand =>
-          brand.id === brandId ? { ...brand, ...updatedData } : brand
+      await axios.put(`${BASE_URL}/roles/${roleId}`, updatedData, { headers });
+      setRoles(prevRoles =>
+        prevRoles.map(role =>
+          role.id === roleId ? { ...role, ...updatedData } : role
         )
       );
     });
   };
 
-  const deleteBrand = async (brandId) => {
+  const deleteRole = async (roleId) => {
     await handleRequest(async () => {
       const headers = generateHeaders();
-      await axios.delete(`${BASE_URL}/brands/${brandId}`, { headers });
-      setBrands(prevBrands =>
-        prevBrands.filter(brand => brand.id !== brandId)
-      );
+      await axios.delete(`${BASE_URL}/roles/${roleId}`, { headers });
+      setRoles(prevRoles => prevRoles.filter(role => role.id !== roleId));
     });
   };
 
   return {
-    brands,
+    roles,
     loading,
     error,
-    fetchBrands,
-    createBrand,
-    updateBrand,
-    deleteBrand,
+    fetchRoles,
+    createRole,
+    updateRole,
+    deleteRole,
   };
 };
 
-export default useBrandsService;
+export default useRolesService;

@@ -4,13 +4,11 @@ import { avatarImage } from '../url/constants';
 import useAuth from "../../services/useAuth";
 
 const Header = ({ isLoggedIn, isAdmin, username, handleLogout }) => {
-
   const { logout } = useAuth();
-
 
   return (
     <header className="bg-gray-900 text-white shadow-md py-4 mx-2 rounded-md ">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-between items-center px-2">
         <div className="logo">
           <h1 className="text-xl font-bold">Dashboard</h1>
         </div>
@@ -25,9 +23,15 @@ const Header = ({ isLoggedIn, isAdmin, username, handleLogout }) => {
               <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600" onClick={handleLogout}>Logout</button>
             </>
           ) : (
-            <Link to="/login"  onClick={() => {
-              logout();
-            }}  className="`border border-transparent flex items-center justify-center px-4 py-2 bg-white shadow-md font-medium text-gray-800 rounded-md hover:bg-black hover:text-white hover:border-white transition duration-300 ease-in-out">Logout</Link>
+            <Link
+              to="/login"
+              onClick={() => {
+                logout();
+              }}
+              className="border border-transparent flex items-center justify-center px-4 py-2 bg-white shadow-md font-medium text-gray-800 rounded-md hover:bg-black hover:text-white hover:border-white transition duration-300 ease-in-out"
+            >
+              Logout
+            </Link>
           )}
         </nav>
       </div>

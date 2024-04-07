@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import BASE_URL from '../config'; 
 
-const BASE_URL = 'http://localhost:9000';
 
 const useSuppliersService = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [specificError, setSpecificError] = useState(null); 
 
   const generateHeaders = () => ({
     'Token': localStorage.getItem('token'),
@@ -20,7 +22,8 @@ const useSuppliersService = () => {
     try {
       await requestFunc(...args);
     } catch (error) {
-      setError(error.message || 'An error occurred');
+      setSpecificError(error.message); 
+      setError('An error occurred');
     } finally {
       setLoading(false);
     }
@@ -41,8 +44,17 @@ const useSuppliersService = () => {
   const createSupplier = async (supplierData) => {
     await handleRequest(async () => {
       const headers = generateHeaders();
-      const response = await axios.post(`${BASE_URL}/suppliers`, supplierData, { headers });
-      setSuppliers(prevSuppliers => [...prevSuppliers, response.data]);
+      try {
+        const response = await axios.post(`${BASE_URL}/suppliers`, supplierData, { headers });
+        setSuppliers(prevSuppliers => [...prevSuppliers, response.data]);
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          const errorMessage = error.response.data.error || 'Duplicate code error';
+          setSpecificError(errorMessage);
+        } else {
+          setError('An error occurred');
+        }
+      }
     });
   };
 
@@ -72,6 +84,7 @@ const useSuppliersService = () => {
     suppliers,
     loading,
     error,
+    specificError, 
     fetchSuppliers,
     createSupplier,
     updateSupplier,

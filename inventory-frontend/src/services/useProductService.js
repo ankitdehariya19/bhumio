@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import BASE_URL from '../config'; 
 
-const BASE_URL = 'http://localhost:9000';
 
 const useProductService = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   const generateHeaders = () => ({
     'Token': localStorage.getItem('token'),
@@ -31,6 +32,8 @@ const useProductService = () => {
       const headers = generateHeaders();
       const response = await axios.get(`${BASE_URL}/products`, { headers });
       setProducts(response.data.data || []);
+      setTotalProducts(response?.data?.data?.length)
+      console.log(response?.data?.data)
     });
   };
 
@@ -72,6 +75,7 @@ const useProductService = () => {
     products,
     loading,
     error,
+    totalProducts,
     fetchProducts,
     createProduct,
     updateProduct,

@@ -1,5 +1,6 @@
 import {  useEffect, useState } from "react";
 import { redirect } from "react-router-dom";
+import BASE_URL from '../config';
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -18,7 +19,7 @@ const useAuth = () => {
   const login = async (username, password) => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:9000/login", {
+      const response = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

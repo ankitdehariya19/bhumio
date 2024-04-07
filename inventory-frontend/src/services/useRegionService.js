@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const BASE_URL = 'http://localhost:9000';
+import BASE_URL from '../config'; 
 
 const useRegionService = () => {
   const [regions, setRegions] = useState([]);
@@ -41,8 +40,17 @@ const useRegionService = () => {
   const createRegion = async (regionData) => {
     await handleRequest(async () => {
       const headers = generateHeaders();
-      const response = await axios.post(`${BASE_URL}/regions`, regionData, { headers });
-      setRegions(prevRegions => [...prevRegions, response.data]);
+      try {
+        const response = await axios.post(`${BASE_URL}/regions`, regionData, { headers });
+        setRegions(prevRegions => [...prevRegions, response.data]);
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          const errorMessage = error.response.data.error || 'Duplicate code error'; 
+          setError(errorMessage);
+        } else {
+          setError(error.message || 'An error occurred'); 
+        }
+      }
     });
   };
 

@@ -1,10 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import useBrandsService from '../services/useBrandsService';
 import Modal from '../components/element/Modal';
-import EditBrand from '../components/element/EditBrand';
-import NewBrand from '../components/element/NewBrand';
 import Button from '../components/element/Button';
 import TableComponent from '../components/element/TableComponent';
+import BrandsModal from '../components/Modal/BrandsModal'; // Use BrandsModal
 
 const Brands = () => {
   const {
@@ -45,6 +45,7 @@ const Brands = () => {
     try {
       await createBrand(formData);
       setIsCreateModalOpen(false);
+      fetchBrands(); 
     } catch (error) {
       console.error('Error saving new brand:', error);
     }
@@ -69,17 +70,17 @@ const Brands = () => {
       </div>
       {loading ? <p className="text-gray-600">Loading...</p> : null}
       {error && <p className="text-red-600">Error: {error}</p>}
-      <TableComponent
-        data={brands}
-        columns={columns}
-        onEdit={handleEditBrand}
-        onDelete={handleDeleteBrand}
-      />
+      {brands && brands.length > 0 ? (
+        <TableComponent data={brands} columns={columns} onEdit={handleEditBrand} onDelete={handleDeleteBrand} />
+      ) : (
+        <p>No brands found.</p>
+      )}
       <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
-        <NewBrand onClose={() => setIsCreateModalOpen(false)} onSave={handleSaveNewBrand} />
+        <BrandsModal onClose={() => setIsCreateModalOpen(false)} onSave={handleSaveNewBrand} />
       </Modal>
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <EditBrand
+        <BrandsModal 
+          isEditing={true} 
           brand={brands.find((brand) => brand.id === selectedBrandId)}
           onClose={() => setIsEditModalOpen(false)}
           onSave={handleSaveEditedBrand}

@@ -22,10 +22,6 @@ const Sidebar = () => {
       submenu: true,
       submenuItems: [
         { title: "Home", path: "/" },
-        { title: "Overview", path: "/overview" },
-        { title: "Analytics", path: "/analytics" },
-        { title: "Reports", path: "/reports" },
-        { title: "Notifications", path: "/notifications" },
       ],
     },
     {
@@ -33,16 +29,16 @@ const Sidebar = () => {
       icon: <BsDatabaseFillLock />,
       submenu: true,
       submenuItems: [
-        { title: "Companies", path: "/companies" },
         { title: "Regions", path: "/regions" },
-        { title: "Branches", path: "/branches" },
-        { title: "Access Roles", path: "/access-roles" },
-        { title: "Users", path: "/users" },
         { title: "Brands", path: "/brands" },
-        { title: "Product Categories", path: "/productCategories" },
-        { title: "Products", path: "/products" },
-        { title: "Suppliers", path: "/suppliers" },
         { title: "Customers", path: "/customers" },
+        { title: "Product Categories", path: "/productCategories" },
+        { title: "Suppliers", path: "/suppliers" },
+
+        { title: "Companies", path: "/companies" },
+        { title: "Branches", path: "/branches" },
+        { title: "Users", path: "/users" },
+        { title: "Products", path: "/products" },
         { title: "Salesman", path: "/salesman" },
       ],
     },
@@ -102,7 +98,7 @@ const Sidebar = () => {
     <div
       className={`${
         open ? "w-72" : "w-20"
-      } min-h-screen max-h-full duration-300 p-5 pt-4 bg-gray-900 relative mx-2 rounded-md`}
+      } min-h-screen max-h-full duration-300 p-5 pt-4 bg-gray-900 relative mx-2 rounded-md z-30`}
     >
       <BsArrowLeftCircleFill
         onClick={() => setOpen(!open)}
@@ -175,4 +171,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-

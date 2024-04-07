@@ -17,7 +17,6 @@ import Products from "./page/Products";
 import Customers from "./page/Customers";
 import Salesman from "./page/Salesman";
 import Suppliers from "./page/Suppliers";
-import Categories from "./page/Categories";
 import ProductCategories from "./page/ProductCategories";
 import Brands from "./page/Brands";
 import Users from "./page/Users";

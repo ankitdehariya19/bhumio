@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import BASE_URL from '../config'; 
 
-const BASE_URL = 'http://localhost:9000';
 
 const useCustomerService = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
   const generateHeaders = () => ({
     'Token': localStorage.getItem('token'),
@@ -31,6 +33,7 @@ const useCustomerService = () => {
       const headers = generateHeaders();
       const response = await axios.get(`${BASE_URL}/customers`, { headers });
       setCustomers(response.data.data || []);
+      setTotalCustomers(response?.data?.data?.length)
     });
   };
 
@@ -41,8 +44,17 @@ const useCustomerService = () => {
   const createCustomer = async (customerData) => {
     await handleRequest(async () => {
       const headers = generateHeaders();
-      const response = await axios.post(`${BASE_URL}/customers`, customerData, { headers });
-      setCustomers(prevCustomers => [...prevCustomers, response.data]);
+      try {
+        const response = await axios.post(`${BASE_URL}/customers`, customerData, { headers });
+        setCustomers(prevCustomers => [...prevCustomers, response.data]);
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          const errorMessage = error.response.data.error || 'Duplicate code error';
+          setError(errorMessage);
+        } else {
+          setError(error.message || 'An error occurred');
+        }
+      }
     });
   };
 
@@ -72,6 +84,7 @@ const useCustomerService = () => {
     customers,
     loading,
     error,
+    totalCustomers,
     fetchCustomers,
     createCustomer,
     updateCustomer,

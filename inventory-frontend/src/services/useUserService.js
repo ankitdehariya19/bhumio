@@ -1,75 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import BASE_URL from '../config'; 
 
-const BASE_URL = 'http://localhost:9000'; // Update with your API base URL
+
 
 const useUserService = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [totalUsers, setTotalUsers] = useState(0);
+  
 
-  const fetchUsers = async () => {
+  const generateHeaders = () => ({
+    'Token': localStorage.getItem('token'),
+    'Content-Type': 'application/json',
+  });
+
+  const handleRequest = async (requestFunc, ...args) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.get(`${BASE_URL}/users`);
-      setUsers(response.data.data || []);
+      await requestFunc(...args);
     } catch (error) {
-      setError(error.message || 'An error occurred while fetching users.');
+      setError(error.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
-  const createUser = async (userData) => {
-    setLoading(true);
-    setError(null);
+  const fetchUsers = async () => {
+    await handleRequest(async () => {
+      const headers = generateHeaders();
+      const response = await axios.get(`${BASE_URL}/users`, { headers });
+      setUsers(response.data.data || []);
+      setTotalUsers(response?.data?.data?.length)
+    });
+  };
 
-    try {
-      const response = await axios.post(`${BASE_URL}/users`, userData);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const createUser = async (userData) => {
+    await handleRequest(async () => {
+      const headers = generateHeaders();
+      const response = await axios.post(`${BASE_URL}/users`, userData, { headers });
       setUsers((prevUsers) => [...prevUsers, response.data]);
-    } catch (error) {
-      setError(error.message || 'An error occurred while creating user.');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const updateUser = async (userId, userData) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      await axios.put(`${BASE_URL}/users/${userId}`, userData);
+    await handleRequest(async () => {
+      const headers = generateHeaders();
+      await axios.put(`${BASE_URL}/users/${userId}`, userData, { headers });
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id === userId ? { ...user, ...userData } : user))
       );
-    } catch (error) {
-      setError(error.message || 'An error occurred while updating user.');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const deleteUser = async (userId) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      await axios.delete(`${BASE_URL}/users/${userId}`);
+    await handleRequest(async () => {
+      const headers = generateHeaders();
+      await axios.delete(`${BASE_URL}/users/${userId}`, { headers });
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-    } catch (error) {
-      setError(error.message || 'An error occurred while deleting user.');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return {
     users,
     loading,
     error,
+    totalUsers,
     fetchUsers,
     createUser,
     updateUser,

@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import useUserService from '../services/useUserService';
-import Modal from './../components/element/Modal';
-import EditUser from '../components/element/EditUser';
-import NewUser from '../components/element/NewUser';
-import Button from '../components/element/Button';
-import TableComponent from '../components/element/TableComponent';
+import React, { useEffect, useState } from "react";
+import useUserService from "../services/useUserService";
+import Modal from "./../components/element/Modal";
+import Button from "../components/element/Button";
+import TableComponent from "../components/element/TableComponent";
+import UserModal from "../components/Modal/UserModal";
 
 const Users = () => {
   const {
@@ -19,10 +18,11 @@ const Users = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [specificError, setSpecificError] = useState(null);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchUsers().catch((error) => setSpecificError(error.message));
+  }, []);
 
   const handleCreateUser = () => {
     setIsCreateModalOpen(true);
@@ -36,8 +36,9 @@ const Users = () => {
   const handleDeleteUser = async (userId) => {
     try {
       await deleteUser(userId);
+      fetchUsers().catch((error) => setSpecificError(error.message));
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     }
   };
 
@@ -45,8 +46,9 @@ const Users = () => {
     try {
       await createUser(formData);
       setIsCreateModalOpen(false);
+      fetchUsers().catch((error) => setSpecificError(error.message));
     } catch (error) {
-      console.error('Error saving new user:', error);
+      console.error("Error saving new user:", error);
     }
   };
 
@@ -55,11 +57,21 @@ const Users = () => {
       await updateUser(selectedUserId, editedData);
       setIsEditModalOpen(false);
     } catch (error) {
-      console.error('Error saving edited user:', error);
+      console.error("Error saving edited user:", error);
     }
   };
-
-  const columns = ['Username', 'Active', 'Roles']; 
+  const columns = [
+    "Username",
+    {
+      title: "Active",
+      render: (user) => (user.isActive ? "Active" : "Not Active"),
+    },
+    "Company ID",
+    "Company Code",
+    "Company Name",
+    "Company Address",
+  ];
+  
 
   return (
     <div className="container mx-auto p-8">
@@ -68,18 +80,33 @@ const Users = () => {
         <Button onClick={handleCreateUser}>Create New User</Button>
       </div>
       {loading ? <p className="text-gray-600">Loading...</p> : null}
-      {error && <p className="text-red-600">Error: {error}</p>}
-      <TableComponent
-        data={users}
-        columns={columns}
-        onEdit={handleEditUser}
-        onDelete={handleDeleteUser}
-      />
-      <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
-        <NewUser onClose={() => setIsCreateModalOpen(false)} onSave={handleSaveNewUser} />
+      {specificError && <p className="text-red-600">Error: {specificError}</p>}
+      {error && !specificError && (
+        <p className="text-red-600">Error: {error}</p>
+      )}
+      {users && users.length > 0 ? (
+        <TableComponent
+          data={users}
+          columns={columns}
+          onEdit={handleEditUser}
+          onDelete={handleDeleteUser}
+        />
+      ) : (
+        <p>No users found.</p>
+      )}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      >
+        <UserModal
+          onClose={() => setIsCreateModalOpen(false)}
+          onSave={handleSaveNewUser}
+        />
       </Modal>
+
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <EditUser
+        <UserModal
+          isEditing={true}
           user={users.find((user) => user.id === selectedUserId)}
           onClose={() => setIsEditModalOpen(false)}
           onSave={handleSaveEditedUser}

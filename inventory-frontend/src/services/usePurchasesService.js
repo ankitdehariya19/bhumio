@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const BASE_URL = 'http://localhost:9000';
+import BASE_URL from '../config'; 
 
 const usePurchasesService = () => {
   const [purchases, setPurchases] = useState([]);
